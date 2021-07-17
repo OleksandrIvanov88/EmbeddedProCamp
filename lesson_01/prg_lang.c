@@ -35,7 +35,7 @@ int main(void)
     size_t size = sizeof(data) / sizeof(struct lang_item);
     for (size_t i = 0; i < size; ++i)
     {
-        printf("%*s%u %*s%u %*s%s %*s%-9s %-5.2f %% %6.2f %%\n", 5, "", data[i].pos_2021,
+        printf("%*s%u %*s%u %*s%s %*s%-9s %-5.2f %% %+6.2f %%\n", 5, "", data[i].pos_2021,
                                                                  10, "", data[i].pos_2020,
                                                                  8, "", data[i].change,
                                                                  6, "", data[i].lang,
