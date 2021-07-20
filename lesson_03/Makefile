@@ -5,7 +5,7 @@ CFLAGS := -g -o3 -std=$(CSTD) -Wall -Wextra -Wpedantic
 #LDFLAGS
 
 #INCLUDES = 
-TARGET_NAME := cpu_table
+TARGET_NAME := prg_lang
 SRCS := $(TARGET_NAME).c	
 TARGET := $(TARGET_NAME)
 OBJS := $(SRCS:.c=.o)

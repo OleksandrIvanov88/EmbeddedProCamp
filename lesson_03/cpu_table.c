@@ -17,10 +17,16 @@ int main(void)
     printf("-----------------------------------------------------------\n");
     printf("| %-31s | %4s | %s |\n", "CPU", "CPU Mark", "Price (USD)");
     printf("-----------------------------------------------------------\n");
+    scanf("%s %i %f", &cpu_name_1[0], &cpu_mark_1, &price_1);
+    scanf("%s %i %f", &cpu_name_2[0], &cpu_mark_2, &price_2);
+    scanf("%s %i %f", &cpu_name_3[0], &cpu_mark_3, &price_3);
     //Body
-    printf("%-31s %8i %11.2f\n", cpu_name_1, cpu_mark_1, price_1);
-    printf("%-31s %8i %11.2f\n", cpu_name_2, cpu_mark_2, price_2);
-    printf("%-31s %8i %11.2f\n", cpu_name_3, cpu_mark_3, price_3);
+    printf("-----------------------------------------------------------\n");
+    printf("| %-31s | %4s | %s |\n", "CPU", "CPU Mark", "Price (USD)");
+    printf("-----------------------------------------------------------\n");
+    printf("%-31s %8i %11.2f\n", &cpu_name_1[0], cpu_mark_1, price_1);
+    printf("%-31s %8i %11.2f\n", &cpu_name_2[0], cpu_mark_2, price_2);
+    printf("%-31s %8i %11.2f\n", &cpu_name_3[0], cpu_mark_3, price_3);
 
     return 0;
 }

@@ -11,33 +11,42 @@
 
 struct lang_item
 {
-    uint8_t pos_2021;
-    uint8_t pos_2020;
-    char *change;
-    char *lang;
+    uint32_t pos_2021;
+    uint32_t pos_2020;
+    char lang[100];
     float raiting;
     float trand;
 };
 
 int main(void)
 {
-    struct lang_item data[] =
-        {
-            {1, 1, " ", "C", 13.38, -3.68},
-            {2, 3, "\u2191", "Python", 11.87, +2.75},
-            {3, 2, "\u2193", "Java", 11.74, -4.54},
-            {4, 4, " ", "C++", 7.81, +1.69}};
+    // struct lang_item data[] =
+    //     {
+    //         {1, 1, "C", 13.38, -3.68},
+    //         {2, 3, "Python", 11.87, +2.75},
+    //         {3, 2, "Java", 11.74, -4.54},
+    //         {4, 4, "C++", 7.81, +1.69}};
+    printf("Enter the amount of tabel lines = ");
+    int32_t lines_number = 0;
+    scanf("%i", &lines_number);
+    struct  lang_item data[lines_number];
+    
+    for(int i = 0; i < lines_number; ++i)
+    {
+        printf("Enter Position_2021 Position_2020 Language Rainting Trends for line #1%u:\n", i + 1);
+        scanf("%u %u %s %f %f", &data[i].pos_2021, &data[i].pos_2020, &data[i].lang[0], 
+                                                     &data[i].raiting, &data[i].trand);
+    }
 
-    printf("---------------------------------------------------------------\n");
-    printf("| %5s | %5s | %5s | %-10s| %5s | %5s |\n", "May 2021", "May 2020", "Change", "Language",
+    printf("------------------------------------------------------\n");
+    printf("| %5s | %5s | %-10s| %5s | %5s |\n", "May 2021", "May 2020", "Language",
                                                        "Raiting", "Trends");
-    printf("---------------------------------------------------------------\n");
+    printf("------------------------------------------------------\n");
     size_t size = sizeof(data) / sizeof(struct lang_item);
     for (size_t i = 0; i < size; ++i)
     {
-        printf("%*s%u %*s%u %*s%s %*s%-9s %-5.2f %% %+6.2f %%\n", 5, "", data[i].pos_2021,
+        printf("%*s%u %*s%u %*s%-9s %-5.2f %% %+7.2f %%\n", 5, "", data[i].pos_2021,
                                                                  10, "", data[i].pos_2020,
-                                                                 8, "", data[i].change,
                                                                  6, "", data[i].lang,
                                                                  data[i].raiting, data[i].trand);
     }
