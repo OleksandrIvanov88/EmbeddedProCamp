@@ -33,7 +33,7 @@ int main(void)
     
     for(int i = 0; i < lines_number; ++i)
     {
-        printf("Enter Position_2021 Position_2020 Language Rainting Trends for line #1%u:\n", i + 1);
+        printf("Enter Position_2021 Position_2020 Language Rainting Trends for line #%u:\n", i + 1);
         scanf("%u %u %s %f %f", &data[i].pos_2021, &data[i].pos_2020, &data[i].lang[0], 
                                                      &data[i].raiting, &data[i].trand);
     }
