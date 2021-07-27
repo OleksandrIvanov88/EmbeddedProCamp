@@ -1,9 +1,9 @@
 
-#include "../inc/output_processor.h"
+#include "output_processor.h"
 
 #include <stdio.h>
 
-#include "../inc/type.h"
+#include "type.h"
 
 void print_data(const Lang_item* item) {
   printf("%*s%u %*s%u %*s%-9s %-5.2f %% %+7.2f %%\n", 5, "", item->pos_2021, 10,

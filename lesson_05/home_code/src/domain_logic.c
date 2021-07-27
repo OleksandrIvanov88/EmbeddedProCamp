@@ -1,12 +1,12 @@
 
-#include "../inc/domain_logic.h"
+#include "domain_logic.h"
 
 #include <stdint.h>
 #include <stdio.h>
 
-#include "../inc/input_processor.h"
-#include "../inc/output_processor.h"
-#include "../inc/type.h"
+#include "input_processor.h"
+#include "output_processor.h"
+#include "type.h"
 
 #define NLINE (sizeof(data) / sizeof(Lang_item))
 
