@@ -1,9 +1,9 @@
 
-#include "input_processor.h"
+#include "../inc/input_processor.h"
 
 #include <stdio.h>
 
-#include "type.h"
+#include "../inc/type.h"
 
 void scan_data(Lang_item* item) {
   printf(
