@@ -1,1 +1,7 @@
-﻿
+﻿  domain_logic.c
+  input_processor.c
+  main.c
+  output_processor.c
+E:\programing\gl_emb_pc\hw\rep\lesson_08\webinar_code\output_processor.c(7,1): warning C4133: 'initializing': incompatible types - from 'TABLE_ROW_DATA_U *' to 'TABLE_ROW_S *'
+  Generating Code...
+  Webinar.vcxproj -> E:\programing\gl_emb_pc\hw\rep\lesson_08\Webinar\Debug\Webinar.exe
