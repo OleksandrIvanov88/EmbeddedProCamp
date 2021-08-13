@@ -1,0 +1,22 @@
+---
+:source:
+  :path: test
+  :file: test_calc.c
+:successes:
+- :test: test_add
+  :line: 10
+  :message: ''
+  :unity_test_time: 0
+- :test: test_add_off_nominal
+  :line: 17
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 2
+  :passed: 2
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.053425500000230386
