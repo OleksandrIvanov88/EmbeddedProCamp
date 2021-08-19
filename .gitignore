@@ -53,3 +53,8 @@ dkms.conf
 
 .vscode
 .vs
+/.metadata/
+*/build/
+*/.cproject
+*/.project
+*/.settings
