@@ -431,7 +431,7 @@ void test_Phase1_Default(void)
 
 /**
  * Given Traffic Light FSM is in Phase 1
- * When active phase sey to no valid value
+ * When active phase to not valid value
  * Then errro handler shall be called 
  */
 void test_CorruptState(void)
