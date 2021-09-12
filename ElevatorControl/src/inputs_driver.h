@@ -2,6 +2,12 @@
 #define _INPUTS_DRIVER_H_
 
 /**
+ * \brief Performs Inputs switches' driver Initialization 
+ */
+void InputsInit(void);
+
+
+/**
  * \brief Informs about currently  activated cabin's switch
  * @return: 0 - unknown state 
  *          1 - switch MIN is activated 

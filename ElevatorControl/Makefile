@@ -2,7 +2,7 @@
 
 CXX := gcc
 CSTD := c99
-CXXFLAGS := -g -o3 -std=$(CSTD) -Wall -Wextra -Wpedantic
+CXXFLAGS := -g -std=$(CSTD) -Wall -Wextra -Wpedantic
 CFLAGS := $(INCLUDE_DIR)
 
 TARGET := main

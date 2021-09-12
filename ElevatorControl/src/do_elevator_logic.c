@@ -8,6 +8,6 @@ void run_elevator(void)
     ElvInit();
     while (1)
     {
-        DoorSwitchToNextPhase();
+         ElvCabinSwitchToNextPhase();
     }
 }

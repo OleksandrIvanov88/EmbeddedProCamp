@@ -6,6 +6,7 @@
 #include "inputs_driver.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static ELV_DATA_S gElv_data;
 
@@ -18,7 +19,6 @@ static int wait_for_kay_press(void)
 
 static void activate_stope_phase(void)
 {
-    while (CABIN_SWITCH_FLOOR == CabinSwitches());
     MotorSpeedOff();
     CabinBrakesOn();
     DoorSwitchToNextPhase();
@@ -31,6 +31,7 @@ void ElvInit(void)
     MotorInit();
     CabinBrakesInit();
     DoorActuatorInit();
+    InputsInit();
     //gElv_data.power = POWER_ON;
     DoorActuatorsClosening();
     while (DOOR_SWITCH_CLOSED != DoorSwitches());
@@ -38,11 +39,11 @@ void ElvInit(void)
     gElv_data.door_phase = DOOR_PHASE_CLOSE;
     CabinBrakesOff();
     MotorLowSpeedDown();
-    while(CABIN_SWITCH_MIN != CabinSwitches()); 
+    while(CABIN_SWITCH_MIN != CabinSwitches());
     MotorLowSpeedUp();
+    while (CABIN_SWITCH_FLOOR != CabinSwitches());
     activate_stope_phase();
     gElv_data.current_floor = 1;
-
 }
 
 void DoorSwitchToNextPhase(void)
@@ -116,7 +117,8 @@ void ElvCabinSwitchToNextPhase(void)
             }
         case CABIN_PHASE_MOVING_UP_SLOW://switch to phase Moving Up Fast or Stop
             {
-                if(gElv_data.current_floor == gElv_data.req_floor)
+               
+                if(gElv_data.current_floor == abs(gElv_data.req_floor))
                 {
                     activate_stope_phase();
                     if(DOOR_PHASE_CLOSE == gElv_data.door_phase)
@@ -125,7 +127,7 @@ void ElvCabinSwitchToNextPhase(void)
                     }
                 } else 
                 {
-                    while (CABIN_SWITCH_FLOOR_HIGH == CabinSwitches());
+                    while (CABIN_SWITCH_FLOOR_HIGH != CabinSwitches());
                     MotorFastSpeedUp();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_FAST;
                 }
@@ -143,7 +145,7 @@ void ElvCabinSwitchToNextPhase(void)
 
                 }else 
                 {
-                    while (CABIN_SWITCH_FLOOR_LOW == CabinSwitches());
+                    while (CABIN_SWITCH_FLOOR_LOW != CabinSwitches());
                     MotorFastSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_FAST;
                 }    
@@ -151,25 +153,26 @@ void ElvCabinSwitchToNextPhase(void)
             }
         case CABIN_PHASE_MOVING_UP_FAST://switch to phase Moving UP Slowly or stay with phase Moving Up fast
             {
-                while (CABIN_SWITCH_FLOOR_LOW == CabinSwitches());
-                if(1 == gElv_data.req_floor - gElv_data.current_floor)
+               
+                while (CABIN_SWITCH_FLOOR_LOW != CabinSwitches());
+                if(1 == abs(gElv_data.req_floor) - gElv_data.current_floor)
                 {
                     MotorLowSpeedUp();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_SLOW;
                 }
-                while (CABIN_SWITCH_FLOOR == CabinSwitches());
+                while (CABIN_SWITCH_FLOOR != CabinSwitches());
                 ++gElv_data.current_floor;
                 break;
             }
         case CABIN_PHASE_MOVING_DOWN_FAST://switch to phase Moving Down Slowly or stay with phase Moving Down Fast
             {
-                while (CABIN_SWITCH_FLOOR_HIGH == CabinSwitches());
-                if(1 == gElv_data.req_floor - gElv_data.current_floor)
+                while (CABIN_SWITCH_FLOOR_HIGH != CabinSwitches());
+                if(1 == abs(gElv_data.req_floor) - gElv_data.current_floor)
                 {
                     MotorLowSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;
                 }
-                while (CABIN_SWITCH_FLOOR == CabinSwitches());
+                while (CABIN_SWITCH_FLOOR != CabinSwitches());
                 --gElv_data.current_floor;
                 break;
             }         

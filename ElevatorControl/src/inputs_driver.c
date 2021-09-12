@@ -1,6 +1,11 @@
 #include "inputs_driver.h"
 #include <stdio.h>
 
+void InputsInit(void)
+{
+    printf("%s\r\n", __func__);
+}
+
 int CabinSwitches()
 {
     printf("Enter cabin switch = ");

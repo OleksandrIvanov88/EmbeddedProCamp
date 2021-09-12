@@ -2,12 +2,6 @@
 #define _TYPE_H_
 #include <stdint.h>
 
-// typedef enum
-// {
-//     SWITCH_OFF,
-//     SWITCH_ON
-// }SWITCH_STATE_E;
-
 typedef enum 
 {
     CABIN_SWITCH_UNKNOWN,
@@ -49,28 +43,16 @@ typedef enum
 typedef enum
 {
     DOOR_PHASE_CLOSE,
-    //DOOR_PHASE_OPENING,
     DOOR_PHASE_OPEN,
-    //DOOR_PHASE_CLOSENING
 } DOOR_PHASE_E;
-
-// typedef enum
-// {
-//     POWER_OFF,
-//     POWER_ON
-// } POWER_E;
-
 
 typedef struct
 {
+    int req_floor; 
     uint8_t current_floor;
     //POWER_E power;
     ELV_CABIN_PHASE_E cabin_phase;
     DOOR_PHASE_E door_phase;
-    int req_floor; 
-    // L_SWITCH_CABIN_E cabin_switch;
-    // L_SWITCH_DOOR_E  door_switch;
-    //KEYS_E key;
 } ELV_DATA_S;
 
 
