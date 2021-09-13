@@ -6,7 +6,7 @@
 #include "inputs_driver.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+
 
 static ELV_DATA_S gElv_data;
 
@@ -32,7 +32,6 @@ void ElvInit(void)
     CabinBrakesInit();
     DoorActuatorInit();
     InputsInit();
-    //gElv_data.power = POWER_ON;
     DoorActuatorsClosening();
     while (DOOR_SWITCH_CLOSED != DoorSwitches());
     DoorActuatorsOff();
@@ -40,6 +39,7 @@ void ElvInit(void)
     CabinBrakesOff();
     MotorLowSpeedDown();
     while(CABIN_SWITCH_MIN != CabinSwitches());
+    MotorSpeedOff();
     MotorLowSpeedUp();
     while (CABIN_SWITCH_FLOOR != CabinSwitches());
     activate_stope_phase();
@@ -121,10 +121,7 @@ void ElvCabinSwitchToNextPhase(void)
                 if(gElv_data.current_floor == abs(gElv_data.req_floor))
                 {
                     activate_stope_phase();
-                    if(DOOR_PHASE_CLOSE == gElv_data.door_phase)
-                    {
-                        DoorSwitchToNextPhase();
-                    }
+      
                 } else 
                 {
                     while (CABIN_SWITCH_FLOOR_HIGH != CabinSwitches());
@@ -135,14 +132,10 @@ void ElvCabinSwitchToNextPhase(void)
             }
         case CABIN_PHASE_MOVING_DOWN_SLOW://switch to phase Moving Down Fast or Stop
             {
-                if(gElv_data.current_floor == CabinSwitches())
+                if(gElv_data.current_floor == abs(gElv_data.req_floor))
                 {
                     activate_stope_phase();
-                    if(DOOR_PHASE_CLOSE == gElv_data.door_phase)
-                    {
-                        DoorSwitchToNextPhase();
-                    }
-
+           
                 }else 
                 {
                     while (CABIN_SWITCH_FLOOR_LOW != CabinSwitches());
@@ -167,7 +160,7 @@ void ElvCabinSwitchToNextPhase(void)
         case CABIN_PHASE_MOVING_DOWN_FAST://switch to phase Moving Down Slowly or stay with phase Moving Down Fast
             {
                 while (CABIN_SWITCH_FLOOR_HIGH != CabinSwitches());
-                if(1 == abs(gElv_data.req_floor) - gElv_data.current_floor)
+                if(1 == gElv_data.current_floor - abs(gElv_data.req_floor))
                 {
                     MotorLowSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;

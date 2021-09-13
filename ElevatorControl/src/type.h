@@ -50,7 +50,6 @@ typedef struct
 {
     int req_floor; 
     uint8_t current_floor;
-    //POWER_E power;
     ELV_CABIN_PHASE_E cabin_phase;
     DOOR_PHASE_E door_phase;
 } ELV_DATA_S;
