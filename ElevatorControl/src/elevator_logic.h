@@ -1,6 +1,11 @@
 #ifndef _ELEVATOR_LOGIC_
 #define _ELEVATOR_LOGIC_
 
+#ifdef TEST
+#include "type.h"
+extern ELV_DATA_S gElv_data;
+#endif
+
 /**
  *\brief Perform elevator initialization 
  */
