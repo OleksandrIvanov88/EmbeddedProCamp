@@ -71,7 +71,6 @@ void ELFSM_DoorSwitchToNextPhase(void)
                 break;
             }    
     }
-
 }
 
 void ELFSM_ElvCabinSwitchToNextPhase(void)
@@ -153,7 +152,6 @@ void ELFSM_ElvCabinSwitchToNextPhase(void)
 
                 while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches());
                 --gElv_data.current_floor;
-
                 break;
             }         
         default:
