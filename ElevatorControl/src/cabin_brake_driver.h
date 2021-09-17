@@ -4,16 +4,16 @@
 /**
  * \brief Performs Cabin Brakes Initialization 
  */
-void CabinBrakesInit(void);
+void CBDRV_Init(void);
 
 /**
  * \brief Switch on cabin's brakes. 
  */
-void CabinBrakesOn(void);
+void CBDRV_BrakesOn(void);
 
 /**
  * \brief Switch off cabin's brakes. 
  */
-void CabinBrakesOff(void);
+void CBDRV_BrakesOff(void);
 
 #endif

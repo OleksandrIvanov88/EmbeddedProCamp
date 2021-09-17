@@ -5,32 +5,32 @@
 /**
  * \brief Performs Motor Driver Initialization 
  */
-void MotorInit(void);
+void MDRV_Init(void);
 
 /**
  * \brief Increase motor speed in the up direction. 
  */
-void MotorFastSpeedUp(void);
+void MDRV_FastSpeedUp(void);
 
 /**
  * \brief Switch on motor speed in the up direction. 
  */
-void MotorLowSpeedUp(void);
+void MDRV_LowSpeedUp(void);
 
 /**
  * \brief Switch off motor. 
  */
-void MotorSpeedOff(void);
+void MDRV_SpeedOff(void);
 
 /**
  * \brief Switch on motor in the down direction. 
  */
-void MotorLowSpeedDown(void);
+void MDRV_LowSpeedDown(void);
 
 /**
  * \brief Increase motor speed in the down direction. 
  */
-void MotorFastSpeedDown(void);
+void MDRV_FastSpeedDown(void);
 
 
 

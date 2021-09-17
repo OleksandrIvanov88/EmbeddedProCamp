@@ -4,7 +4,7 @@
 /**
  * \brief Performs Inputs switches' driver Initialization 
  */
-void InputsInit(void);
+void INDRV_Init(void);
 
 
 /**
@@ -16,7 +16,7 @@ void InputsInit(void);
  *          4 - switch FLOOR LOW is activated 
  *          5 - switch MAX is activated  
  */
-int CabinSwitches();
+int INDRV_CabinSwitches();
 
 /**
  * \brief Informs about currently  activated door's switch
@@ -24,7 +24,7 @@ int CabinSwitches();
  *          1 - switch DOOR CLOSED is activated 
  *          2 - switch DOOR OPENED is activated   
  */
-int DoorSwitches();
+int INDRV_DoorSwitches();
 
 /**
  * \brief Informs about currently activated incabin or outcabin switch 
@@ -37,9 +37,7 @@ int DoorSwitches();
  *          3 - key FLOOR 3 incabin is activated 
  *          4 - key STOP in cabin is activated
  */
-int Keys();
-
-
+int INDRV_Keys();
 
 
 #endif

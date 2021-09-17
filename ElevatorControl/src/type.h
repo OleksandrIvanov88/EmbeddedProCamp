@@ -2,22 +2,21 @@
 #define _TYPE_H_
 #include <stdint.h>
 
-typedef enum 
-{
-    CABIN_SWITCH_UNKNOWN,
-    CABIN_SWITCH_MIN,
-    CABIN_SWITCH_FLOOR_HIGH,
-    CABIN_SWITCH_FLOOR,
-    CABIN_SWITCH_FLOOR_LOW,
-    CABIN_SWITCH_MAX
-}L_SWITCH_CABIN_E;
+typedef enum {
+  CABIN_SWITCH_UNKNOWN,
+  CABIN_SWITCH_MIN,
+  CABIN_SWITCH_FLOOR_HIGH,
+  CABIN_SWITCH_FLOOR,
+  CABIN_SWITCH_FLOOR_LOW,
+  CABIN_SWITCH_MAX
+} ELFSM_SWITCH_CABIN_E;
 
 typedef enum
 {
     DOOR_SWITCH_UNKNOWN,
     DOOR_SWITCH_CLOSED,
     DOOR_SWITCH_OPENED
-}L_SWITCH_DOOR_E; 
+}ELFSM_SWITCH_DOOR_E; 
 
 typedef enum
 {
@@ -29,7 +28,7 @@ typedef enum
     KEY_FLOOR_2_CABIN,
     KEY_FLOOR_3_CABIN,
     KEY_STOP_CABIN
-} KEYS_E;
+} ELFSM_KEYS_E;
 
 typedef enum
 {   
@@ -39,22 +38,22 @@ typedef enum
     CABIN_PHASE_MOVING_DOWN_SLOW,
     CABIN_PHASE_MOVING_DOWN_FAST,
     CABIN_PHASE_UNKNOWN
-} ELV_CABIN_PHASE_E;
+} ELFSM_CABIN_PHASE_E;
 
 typedef enum
 {
     DOOR_PHASE_CLOSE,
     DOOR_PHASE_OPEN,
     DOOR_PHASE_UNKNOWN
-} DOOR_PHASE_E;
+} ELFSM_DOOR_PHASE_E;
 
 typedef struct
 {
     int req_floor; 
     uint8_t current_floor;
-    ELV_CABIN_PHASE_E cabin_phase;
-    DOOR_PHASE_E door_phase;
-} ELV_DATA_S;
+    ELFSM_CABIN_PHASE_E cabin_phase;
+    ELFSM_DOOR_PHASE_E door_phase;
+} ELFSM_DATA_S;
 
 
 #endif//_TYPE_H_

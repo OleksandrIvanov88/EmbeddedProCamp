@@ -3,22 +3,23 @@
 
 #ifdef TEST
 #include "type.h"
-extern ELV_DATA_S gElv_data;
+extern ELFSM_DATA_S gElv_data;
+
 #endif
 
 /**
  *\brief Perform elevator initialization 
  */
-void ElvInit(void);
+void ELFSM_ElvInit(void);
 
 /**
  *\brief Switch elevator to the next phase
  */
-void ElvCabinSwitchToNextPhase(void);
+void ELFSM_ElvCabinSwitchToNextPhase(void);
 
 /**
  * \brief Switch door tot the next phase
  */
-void DoorSwitchToNextPhase(void);
+void ELFSM_DoorSwitchToNextPhase(void);
 
 #endif

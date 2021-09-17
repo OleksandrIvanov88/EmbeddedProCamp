@@ -5,9 +5,9 @@
 
 void run_elevator(void)
 {
-    ElvInit();
+    ELFSM_ElvInit();
     while (1)
     {
-         ElvCabinSwitchToNextPhase();
+         ELFSM_ElvCabinSwitchToNextPhase();
     }
 }

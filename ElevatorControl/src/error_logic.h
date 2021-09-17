@@ -4,5 +4,5 @@
 /**
  * \brief Handels the error of elevator logic 
  */
-void ErrorHandler(void);
+void ELFSM_ErrorHandler(void);
 #endif

@@ -9,104 +9,95 @@
 #include <stdlib.h>
 
 
-
 #ifdef TEST
-ELV_DATA_S gElv_data;
+ELFSM_DATA_S gElv_data;
 #else
-static ELV_DATA_S gElv_data;
+static ELFSM_DATA_S gElv_data;
 #endif
-
 
 static void activate_stope_phase(void)
 {
-    MotorSpeedOff();
-    CabinBrakesOn();
-    DoorSwitchToNextPhase();
+    MDRV_SpeedOff();
+    CBDRV_BrakesOn();
+    ELFSM_DoorSwitchToNextPhase();
     gElv_data.cabin_phase = CABIN_PHASE_STOP;
 }
 
-
-void ElvInit(void)
+void ELFSM_ElvInit(void)
 {
+    
+    MDRV_Init();
+    CBDRV_Init();
+    DADRV_Init();
+    INDRV_Init();
+    DADRV_ActuatorsClosening();
     memset(&gElv_data, 0, sizeof(gElv_data));
-    MotorInit();
-    CabinBrakesInit();
-    DoorActuatorInit();
-    InputsInit();
-    DoorActuatorsClosening();
-    while (DOOR_SWITCH_CLOSED != DoorSwitches());
-    DoorActuatorsOff();
+    while (DOOR_SWITCH_CLOSED != INDRV_DoorSwitches());
+    DADRV_ActuatorsOff();
     gElv_data.door_phase = DOOR_PHASE_CLOSE;
-    CabinBrakesOff();
-    MotorLowSpeedDown();
-    while(CABIN_SWITCH_MIN != CabinSwitches());
-    MotorSpeedOff();
-    MotorLowSpeedUp();
-    while (CABIN_SWITCH_FLOOR != CabinSwitches());
+    CBDRV_BrakesOff();
+    MDRV_LowSpeedDown();
+    while(CABIN_SWITCH_MIN != INDRV_CabinSwitches());
+    MDRV_SpeedOff();
+    MDRV_LowSpeedUp();
+    while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches());
     activate_stope_phase();
     gElv_data.current_floor = 1;
 }
 
-void DoorSwitchToNextPhase(void)
+void ELFSM_DoorSwitchToNextPhase(void)
 {
     switch(gElv_data.door_phase)
     {
         case DOOR_PHASE_CLOSE: //switch to phase Open
             {
-                DoorActuatorsOpening();
-                while(DOOR_SWITCH_OPENED != DoorSwitches());
-                DoorActuatorsOff();
+                DADRV_ActuatorsOpening();
+                while(DOOR_SWITCH_OPENED != INDRV_DoorSwitches());
+                DADRV_ActuatorsOff();
                 gElv_data.door_phase = DOOR_PHASE_OPEN;
                 break;
             }
         case DOOR_PHASE_OPEN: //switch to phase Close
             {
-                DoorActuatorsClosening();
-                while (DOOR_SWITCH_CLOSED != DoorSwitches());
-                DoorActuatorsOff();
+                DADRV_ActuatorsClosening();
+                while (DOOR_SWITCH_CLOSED != INDRV_DoorSwitches());
+                DADRV_ActuatorsOff();
                 gElv_data.door_phase = DOOR_PHASE_CLOSE;
                 break;
             }      
         default:
             {
-                ErrorHandler();
+                ELFSM_ErrorHandler();
                 break;
             }    
     }
 
 }
 
-void ElvCabinSwitchToNextPhase(void)
+void ELFSM_ElvCabinSwitchToNextPhase(void)
 {
     switch(gElv_data.cabin_phase)
     {
         case CABIN_PHASE_STOP: //switch to phase Moving Up Slowly or Moving Down Slowly or stay with Stop phase
             {
-                while (KEY_FLOOR_CABIN_NOT_PRESED == (gElv_data.req_floor =  Keys()));
-                if(gElv_data.req_floor >= KEY_FLOOR_3_OUT 
-                    && gElv_data.req_floor <= KEY_STOP_CABIN)
+                while (KEY_FLOOR_CABIN_NOT_PRESED == (gElv_data.req_floor =  INDRV_Keys()));
+
+                if(gElv_data.req_floor >= KEY_STOP_CABIN || gElv_data.req_floor < KEY_FLOOR_3_OUT)
                 {
-                    if(abs(gElv_data.req_floor) > gElv_data.current_floor
-                            && gElv_data.req_floor != KEY_STOP_CABIN)
-                    {
-                        if(DOOR_PHASE_OPEN == gElv_data.door_phase)
-                        {
-                            DoorSwitchToNextPhase();
-                        }
-                        CabinBrakesOff();
-                        MotorLowSpeedUp();
-                        gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_SLOW;
-                    } else if(abs(gElv_data.req_floor) < gElv_data.current_floor)
-                    {
-                        if(DOOR_PHASE_OPEN == gElv_data.door_phase)
-                        {
-                            DoorSwitchToNextPhase();
-                        }
-                        CabinBrakesOff();
-                        MotorLowSpeedDown();
-                        gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;
-                    }
-                }    
+                   gElv_data.cabin_phase = CABIN_PHASE_STOP;
+                } else if(abs(gElv_data.req_floor) > gElv_data.current_floor)
+                {
+                    ELFSM_DoorSwitchToNextPhase();
+                    CBDRV_BrakesOff();
+                    MDRV_LowSpeedUp();
+                    gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_SLOW;
+                } else //if (abs(gElv_data.req_floor) < gElv_data.current_floor)
+                {
+                    ELFSM_DoorSwitchToNextPhase();
+                    CBDRV_BrakesOff();
+                    MDRV_LowSpeedDown();
+                    gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;
+                }  
                 break;
             }
         case CABIN_PHASE_MOVING_UP_SLOW://switch to phase Moving Up Fast or Stop
@@ -118,8 +109,8 @@ void ElvCabinSwitchToNextPhase(void)
                     gElv_data.cabin_phase = CABIN_PHASE_STOP;
                 } else 
                 {
-                    while (CABIN_SWITCH_FLOOR_HIGH != CabinSwitches());
-                    MotorFastSpeedUp();
+                    while (CABIN_SWITCH_FLOOR_HIGH != INDRV_CabinSwitches());
+                    MDRV_FastSpeedUp();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_FAST;
                 }
                 break;
@@ -132,46 +123,42 @@ void ElvCabinSwitchToNextPhase(void)
            
                 }else 
                 {
-                    while (CABIN_SWITCH_FLOOR_LOW != CabinSwitches());
-                    MotorFastSpeedDown();
+                    while (CABIN_SWITCH_FLOOR_LOW != INDRV_CabinSwitches());
+                    MDRV_FastSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_FAST;
                 }    
                 break;
             }
         case CABIN_PHASE_MOVING_UP_FAST://switch to phase Moving UP Slowly or stay with phase Moving Up fast
             {
-               
-                while (CABIN_SWITCH_FLOOR_LOW != CabinSwitches());
+                while (CABIN_SWITCH_FLOOR_LOW != INDRV_CabinSwitches());
                 if(1 == abs(gElv_data.req_floor) - gElv_data.current_floor)
                 {
-                    MotorLowSpeedUp();
+                    MDRV_LowSpeedUp();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_SLOW;
-                    ++gElv_data.current_floor;
-                } else 
-                {
-                    while (CABIN_SWITCH_FLOOR != CabinSwitches());
-                    ++gElv_data.current_floor;
-                }
+                } 
+
+                while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches());
+                ++gElv_data.current_floor;
                 break;
             }
         case CABIN_PHASE_MOVING_DOWN_FAST://switch to phase Moving Down Slowly or stay with phase Moving Down Fast
             {
-                while (CABIN_SWITCH_FLOOR_HIGH != CabinSwitches());
+                while (CABIN_SWITCH_FLOOR_HIGH != INDRV_CabinSwitches());
                 if(1 == gElv_data.current_floor - abs(gElv_data.req_floor))
                 {
-                    MotorLowSpeedDown();
+                    MDRV_LowSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;
-                    --gElv_data.current_floor;
-                } else 
-                {
-                    while (CABIN_SWITCH_FLOOR != CabinSwitches());
-                    --gElv_data.current_floor;
-                }
+                } 
+
+                while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches());
+                --gElv_data.current_floor;
+
                 break;
             }         
         default:
             {
-                ErrorHandler();
+                ELFSM_ErrorHandler();
                 break;
             }        
     }

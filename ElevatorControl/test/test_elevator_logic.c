@@ -15,7 +15,6 @@ void tearDown(void)
 {
 }
 
-
 /**
  * Given Elevator’s power is off
  * When Elevator’s power is on and initialization occurs 
@@ -30,31 +29,59 @@ void tearDown(void)
 void test_Initialization(void)
 {
     //assert
-    MotorInit_Expect();
-    CabinBrakesInit_Expect();
-    DoorActuatorInit_Expect();
-    InputsInit_Expect();
-    DoorActuatorsClosening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
-    DoorActuatorsOff_Expect();
-    CabinBrakesOff_Expect();
-    MotorLowSpeedDown_Expect();
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_MAX);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_MIN);
-    MotorSpeedOff_Expect();
-    MotorLowSpeedUp_Expect();
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
-    MotorSpeedOff_Expect();
-    CabinBrakesOn_Expect();
-    DoorActuatorsOpening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorActuatorsOff_Expect();
+    MDRV_Init_Expect();
+    CBDRV_Init_Expect();
+    DADRV_Init_Expect();
+    INDRV_Init_Expect();
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_MAX);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_MIN);
+    MDRV_SpeedOff_Expect();
+    MDRV_LowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
     //act 
-    ElvInit();
+    ELFSM_ElvInit();
     TEST_ASSERT_EQUAL_INT( 1, gElv_data.current_floor); 
+}
+
+/**
+ * Given Elevator’s is initialized
+ * When incabin Stop button is be pressed  
+ * Then no change in cabin state should happened
+ */
+void test_Stop_button_presed()
+{
+    //assert
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    TEST_ASSERT_EQUAL_INT(CABIN_PHASE_STOP, gElv_data.cabin_phase); 
+    //act
+    ELFSM_ElvCabinSwitchToNextPhase();
+}
+
+/**
+ * Given Elevator’s is initialized
+ * When Keys() return not valid value 
+ * Then no change in cabin state should happened
+ */
+void test_NotValid_button_presed()
+{
+    //assert
+    INDRV_Keys_ExpectAndReturn(-4);
+    TEST_ASSERT_EQUAL_INT(CABIN_PHASE_STOP, gElv_data.cabin_phase); 
+    //act
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -67,16 +94,16 @@ void test_Initialization(void)
 void test_Stop_to_Moving_Up_Low()
 {
     //assert
-    Keys_ExpectAndReturn(KEY_FLOOR_CABIN_NOT_PRESED);
-    Keys_ExpectAndReturn(KEY_FLOOR_2_CABIN);
-    DoorActuatorsClosening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
-    DoorActuatorsOff_Expect();
-    CabinBrakesOff_Expect();
-    MotorLowSpeedUp_Expect();
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_CABIN_NOT_PRESED);
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_2_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedUp_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -87,11 +114,11 @@ void test_Stop_to_Moving_Up_Low()
 void test_Moving_Up_Low_to_High()
 {
     //assert
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
-    MotorFastSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_FastSpeedUp_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -99,15 +126,17 @@ void test_Moving_Up_Low_to_High()
  * When Floor low switch is triggered
  * And Next Floor is requested floor
  * Then Low Speed Up shall be activated 
+ * And floor switch should be triggered
  */
 void test_Moving_Up_High_to_Low()
 {
     //assert
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    MotorLowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_LowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -118,13 +147,13 @@ void test_Moving_Up_High_to_Low()
 void test_Moving_Up_Low_to_Stop()
 {
     //assert
-    MotorSpeedOff_Expect();
-    CabinBrakesOn_Expect();
-    DoorActuatorsOpening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorActuatorsOff_Expect();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor); 
 }
 
@@ -138,14 +167,14 @@ void test_Moving_Up_Low_to_Stop()
 void test_Stop_to_Moving_Down_Low()
 {
     //assert
-    Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
-    DoorActuatorsClosening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
-    DoorActuatorsOff_Expect();
-    CabinBrakesOff_Expect();
-    MotorLowSpeedDown_Expect();
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedDown_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -156,11 +185,11 @@ void test_Stop_to_Moving_Down_Low()
 void test_Moving_Down_Low_to_High()
 {
     //assert
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    MotorFastSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_FastSpeedDown_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -168,15 +197,17 @@ void test_Moving_Down_Low_to_High()
  * When Floor high switch is triggered
  * And Next Floor is requested floor
  * Then Low Speed Up shall be activated 
+ * And Floor switch should be triggered
  */
 void test_Moving_Down_High_to_Low()
 {
     //assert
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
-    MotorLowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_LowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -187,13 +218,13 @@ void test_Moving_Down_High_to_Low()
 void test_Moving_Down_Low_to_Stop()
 {
     //assert
-    MotorSpeedOff_Expect();
-    CabinBrakesOn_Expect();
-    DoorActuatorsOpening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorActuatorsOff_Expect();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT( 1, gElv_data.current_floor); 
 }
 
@@ -217,34 +248,35 @@ void test_Floor1_to_Floor3()
 {
     //assert
     TEST_ASSERT_EQUAL_INT(1, gElv_data.current_floor); 
-    Keys_ExpectAndReturn(KEY_FLOOR_3_CABIN);
-    DoorActuatorsClosening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
-    DoorActuatorsOff_Expect();
-    CabinBrakesOff_Expect();
-    MotorLowSpeedUp_Expect();
-    ElvCabinSwitchToNextPhase();
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
-    MotorFastSpeedUp_Expect();
-    ElvCabinSwitchToNextPhase();
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_3_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_FastSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_UP_FAST, gElv_data.cabin_phase);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR); 
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR); 
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_UP_FAST, gElv_data.cabin_phase);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_UP_FAST, gElv_data.cabin_phase);
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor); 
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    MotorLowSpeedUp_Expect();
-    ElvCabinSwitchToNextPhase();
-    MotorSpeedOff_Expect();
-    CabinBrakesOn_Expect();
-    DoorActuatorsOpening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorActuatorsOff_Expect();
-    ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_LowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(3, gElv_data.current_floor);  
 }
 
@@ -268,34 +300,35 @@ void test_Floor3_to_Floor1()
 {
     //assert
     TEST_ASSERT_EQUAL_INT(3, gElv_data.current_floor); 
-    Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
-    DoorActuatorsClosening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
-    DoorActuatorsOff_Expect();
-    CabinBrakesOff_Expect();
-    MotorLowSpeedDown_Expect();
-    ElvCabinSwitchToNextPhase();
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    MotorFastSpeedDown_Expect();
-    ElvCabinSwitchToNextPhase();
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_FastSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_DOWN_FAST, gElv_data.cabin_phase);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR); 
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR); 
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_DOWN_FAST, gElv_data.cabin_phase);
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_DOWN_FAST, gElv_data.cabin_phase);
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor); 
-    CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
-    MotorLowSpeedDown_Expect();
-    ElvCabinSwitchToNextPhase();
-    MotorSpeedOff_Expect();
-    CabinBrakesOn_Expect();
-    DoorActuatorsOpening_Expect();
-    DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
-    DoorActuatorsOff_Expect();
-    ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_LowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(1, gElv_data.current_floor);  
 }
 
@@ -308,9 +341,9 @@ void test_Unknown_Cabin_Phase()
 {
     //assert
     gElv_data.cabin_phase = CABIN_PHASE_UNKNOWN;
-    ErrorHandler_Expect();
+    ELFSM_ErrorHandler_Expect();
     //act
-    ElvCabinSwitchToNextPhase();
+    ELFSM_ElvCabinSwitchToNextPhase();
 }
 
 /**
@@ -322,8 +355,8 @@ void test_Unknown_Door_Phase()
 {
     //assert
     gElv_data.door_phase = DOOR_PHASE_UNKNOWN;
-    ErrorHandler_Expect();
+    ELFSM_ErrorHandler_Expect();
     //act
-     DoorSwitchToNextPhase();
+    ELFSM_DoorSwitchToNextPhase();
 }
 
