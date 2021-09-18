@@ -94,7 +94,7 @@ void test_NotValid_button_presed()
 void test_Stop_to_Moving_Up_Low()
 {
     //assert
-    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_CABIN_NOT_PRESED);
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
     INDRV_Keys_ExpectAndReturn(KEY_FLOOR_2_CABIN);
     DADRV_ActuatorsClosening_Expect();
     INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
@@ -114,7 +114,6 @@ void test_Stop_to_Moving_Up_Low()
 void test_Moving_Up_Low_to_High()
 {
     //assert
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     MDRV_FastSpeedUp_Expect();
     //act
@@ -131,7 +130,6 @@ void test_Moving_Up_Low_to_High()
 void test_Moving_Up_High_to_Low()
 {
     //assert
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     MDRV_LowSpeedUp_Expect();
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
@@ -185,7 +183,6 @@ void test_Stop_to_Moving_Down_Low()
 void test_Moving_Down_Low_to_High()
 {
     //assert
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     MDRV_FastSpeedDown_Expect();
     //act
@@ -202,7 +199,6 @@ void test_Moving_Down_Low_to_High()
 void test_Moving_Down_High_to_Low()
 {
     //assert
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     MDRV_LowSpeedDown_Expect();
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
@@ -260,10 +256,7 @@ void test_Floor1_to_Floor3()
     ELFSM_ElvCabinSwitchToNextPhase();
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_UP_FAST, gElv_data.cabin_phase);
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR); 
-    TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_UP_FAST, gElv_data.cabin_phase);
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_UP_FAST, gElv_data.cabin_phase);
     ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor); 
@@ -312,10 +305,7 @@ void test_Floor3_to_Floor1()
     ELFSM_ElvCabinSwitchToNextPhase();
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_DOWN_FAST, gElv_data.cabin_phase);
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR); 
-    TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_DOWN_FAST, gElv_data.cabin_phase);
-    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
     TEST_ASSERT_EQUAL_INT(CABIN_PHASE_MOVING_DOWN_FAST, gElv_data.cabin_phase);
     ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor); 
@@ -330,6 +320,294 @@ void test_Floor3_to_Floor1()
     DADRV_ActuatorsOff_Expect();
     ELFSM_ElvCabinSwitchToNextPhase();
     TEST_ASSERT_EQUAL_INT(1, gElv_data.current_floor);  
+}
+
+
+/**
+ * Given Elevator’s is Stoped at 1st floor
+ * When incabin button for 3rd floor pressed  
+ * Then door shall be closed 
+ * And cabin brakes shall be off
+ * Then Low Speed Up shall be activated 
+ * When Floor high switch is triggered 
+ * Then High Speed Up shall be activated 
+ * And Stop butten pressed
+ * When Floor Low switch is triggered
+ * Then Low Speed Up shall be activated 
+ * When Floor switch is triggered 
+ * Then elevator shell be stoped on 2nd floor 
+ */
+void test_Floor1_to_Floor3_Stop_on_2_from_high_speed()
+{
+    //arange
+    gElv_data.current_floor = 1;
+    //assert
+    TEST_ASSERT_EQUAL_INT(1, gElv_data.current_floor); 
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_3_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_FastSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_LowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor);  
+}
+
+
+/**
+ * Given Elevator’s is Stoped at 3rd floor
+ * When incabin button for 1st floor pressed  
+ * Then door shall be closed 
+ * And cabin brakes shall be off
+ * Then Low Speed Down shall be activated 
+ * When Floor low switch is triggered 
+ * Then High Speed Up shall be activated 
+ * And Stop butten pressed
+ * When Floor high switch is triggered
+ * Then Low Speed Up shall be activated 
+ * When Floor switch is triggered 
+ * Then elevator shell be stoped on 2nd floor 
+ */
+void test_Floor3_to_Floor1_Stop_on_2_from_high_speed()
+{
+    //arange
+    gElv_data.current_floor = 3;
+    //assert
+    TEST_ASSERT_EQUAL_INT(3, gElv_data.current_floor); 
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_FastSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_LowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor);  
+}
+
+/**
+ * Given Elevator’s is Stoped at 1st floor
+ * When incabin button for 3rd floor pressed  
+ * Then door shall be closed 
+ * And cabin brakes shall be off
+ * Then Low Speed Up shall be activated 
+ * And Stop butten pressed
+ * When Floor high switch is triggered 
+ * Then High Speed Up shall be activated 
+ * When Floor Low switch is triggered
+ * Then Low Speed Up shall be activated 
+ * When Floor switch is triggered 
+ * Then elevator shell be stoped on 2nd floor 
+ */
+void test_Floor1_to_Floor3_Stop_on_2_from_low_speed()
+{
+    //arange
+    gElv_data.current_floor = 1;
+    //assert
+    TEST_ASSERT_EQUAL_INT(1, gElv_data.current_floor); 
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_3_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_FastSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_LowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor);  
+}
+
+/**
+ * Given Elevator’s is Stoped at 3rd floor
+ * When incabin button for 1st floor pressed  
+ * Then door shall be closed 
+ * And cabin brakes shall be off
+ * Then Low Speed Down shall be activated 
+ * And Stop butten pressed
+ * When Floor low switch is triggered 
+ * Then High Speed Up shall be activated 
+ * When Floor high switch is triggered
+ * Then Low Speed Up shall be activated 
+ * When Floor switch is triggered 
+ * Then elevator shell be stoped on 2nd floor 
+ */
+void test_Floor3_to_Floor1_Stop_on_2_from_low_speed()
+{
+    //arange
+    gElv_data.current_floor = 3;
+    //assert
+    TEST_ASSERT_EQUAL_INT(3, gElv_data.current_floor); 
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_FastSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_LowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor);  
+}
+
+
+/**
+ * Given Elevator’s is Stoped at 3rd floor
+ * When incabin button for 1st floor pressed  
+ * Then door shall be closed 
+ * And cabin brakes shall be off
+ * Then Low Speed Down shall be activated 
+ * When Floor Low switch is triggered 
+ * Then High Speed Down shall be activated 
+ * When Floor High switch is triggered 
+ * Then  elevator shall keep moving fast
+ * And Stop button is pressed 
+ * When Floor switch is triggered 
+ * The elevator should reduce the speed and be stoped 
+ */
+void test_Floor3_to_Floor1_Stop_on_2_from_high_2()
+{
+    //arange
+    gElv_data.current_floor = 3;
+    //assert
+    TEST_ASSERT_EQUAL_INT(3, gElv_data.current_floor); 
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_1_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    MDRV_FastSpeedDown_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    MDRV_LowSpeedDown_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor);  
+}
+
+
+/**
+ * Given Elevator’s is Stoped at 1st floor
+ * When incabin button for 3rd floor pressed  
+ * Then door shall be closed 
+ * And cabin brakes shall be off
+ * Then Low Speed Up shall be activated 
+ * When Floor Low High is triggered 
+ * Then High Speed Up shall be activated 
+ * When Floor Low switch is triggered 
+ * Then  elevator shall keep moving fast
+ * And Stop button is pressed 
+ * When Floor switch is triggered 
+ * The elevator should reduce the speed and be stoped 
+ */
+void test_Floor1_to_Floor3_Stop_on_2_from_high_2()
+{
+    //arange
+    gElv_data.current_floor = 1;
+    //assert
+    TEST_ASSERT_EQUAL_INT(1, gElv_data.current_floor); 
+    INDRV_Keys_ExpectAndReturn(KEY_FLOOR_3_CABIN);
+    DADRV_ActuatorsClosening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_CLOSED);
+    DADRV_ActuatorsOff_Expect();
+    CBDRV_BrakesOff_Expect();
+    MDRV_LowSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_HIGH);
+    MDRV_FastSpeedUp_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR_LOW);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_NOT_PRESED);
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_NOSIGNAL);
+    INDRV_Keys_ExpectAndReturn(KEY_STOP_CABIN);
+    MDRV_LowSpeedUp_Expect();
+    INDRV_CabinSwitches_ExpectAndReturn(CABIN_SWITCH_FLOOR);
+    ELFSM_ElvCabinSwitchToNextPhase();
+    MDRV_SpeedOff_Expect();
+    CBDRV_BrakesOn_Expect();
+    DADRV_ActuatorsOpening_Expect();
+    INDRV_DoorSwitches_ExpectAndReturn(DOOR_SWITCH_OPENED);
+    DADRV_ActuatorsOff_Expect();
+    ELFSM_ElvCabinSwitchToNextPhase();
+    TEST_ASSERT_EQUAL_INT(2, gElv_data.current_floor);  
 }
 
 /**

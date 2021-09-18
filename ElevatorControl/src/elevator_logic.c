@@ -8,7 +8,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 #ifdef TEST
 ELFSM_DATA_S gElv_data;
 #else
@@ -71,6 +70,7 @@ void ELFSM_DoorSwitchToNextPhase(void)
                 break;
             }    
     }
+
 }
 
 void ELFSM_ElvCabinSwitchToNextPhase(void)
@@ -79,8 +79,7 @@ void ELFSM_ElvCabinSwitchToNextPhase(void)
     {
         case CABIN_PHASE_STOP: //switch to phase Moving Up Slowly or Moving Down Slowly or stay with Stop phase
             {
-                while (KEY_FLOOR_CABIN_NOT_PRESED == (gElv_data.req_floor =  INDRV_Keys()));
-
+                while (KEY_NOT_PRESED == (gElv_data.req_floor =  INDRV_Keys()));
                 if(gElv_data.req_floor >= KEY_STOP_CABIN || gElv_data.req_floor < KEY_FLOOR_3_OUT)
                 {
                    gElv_data.cabin_phase = CABIN_PHASE_STOP;
@@ -102,27 +101,43 @@ void ELFSM_ElvCabinSwitchToNextPhase(void)
         case CABIN_PHASE_MOVING_UP_SLOW://switch to phase Moving Up Fast or Stop
             {
                
-                if(gElv_data.current_floor == abs(gElv_data.req_floor))
+                if(gElv_data.current_floor == abs(gElv_data.req_floor) || gElv_data.stop_is_pressed)
                 {
                     activate_stope_phase();
+                    gElv_data.stop_is_pressed = 0;
                     gElv_data.cabin_phase = CABIN_PHASE_STOP;
                 } else 
                 {
-                    while (CABIN_SWITCH_FLOOR_HIGH != INDRV_CabinSwitches());
+                    while (CABIN_SWITCH_FLOOR_HIGH != INDRV_CabinSwitches())
+                    {
+                        if(KEY_STOP_CABIN == INDRV_Keys())
+                        {
+                            gElv_data.stop_is_pressed = 1;
+                        }
+                    }
                     MDRV_FastSpeedUp();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_FAST;
+               
                 }
                 break;
             }
         case CABIN_PHASE_MOVING_DOWN_SLOW://switch to phase Moving Down Fast or Stop
             {
-                if(gElv_data.current_floor == abs(gElv_data.req_floor))
+                if(gElv_data.current_floor == abs(gElv_data.req_floor) || gElv_data.stop_is_pressed)
                 {
                     activate_stope_phase();
+                    gElv_data.stop_is_pressed = 0;
+                    gElv_data.cabin_phase = CABIN_PHASE_STOP;
            
                 }else 
                 {
-                    while (CABIN_SWITCH_FLOOR_LOW != INDRV_CabinSwitches());
+                    while (CABIN_SWITCH_FLOOR_LOW != INDRV_CabinSwitches())
+                    {
+                        if(KEY_STOP_CABIN == INDRV_Keys())
+                        {
+                            gElv_data.stop_is_pressed = 1;
+                        }
+                    }
                     MDRV_FastSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_FAST;
                 }    
@@ -130,27 +145,57 @@ void ELFSM_ElvCabinSwitchToNextPhase(void)
             }
         case CABIN_PHASE_MOVING_UP_FAST://switch to phase Moving UP Slowly or stay with phase Moving Up fast
             {
-                while (CABIN_SWITCH_FLOOR_LOW != INDRV_CabinSwitches());
-                if(1 == abs(gElv_data.req_floor) - gElv_data.current_floor)
+                while (CABIN_SWITCH_FLOOR_LOW != INDRV_CabinSwitches())
+                {
+                    if(KEY_STOP_CABIN == INDRV_Keys())
+                    {
+                        gElv_data.stop_is_pressed = 1;
+                    }
+                }
+
+                if(1 == abs(gElv_data.req_floor) - gElv_data.current_floor || gElv_data.stop_is_pressed)
                 {
                     MDRV_LowSpeedUp();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_SLOW;
                 } 
 
-                while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches());
+                while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches())
+                {
+                    if(KEY_STOP_CABIN == INDRV_Keys())
+                    {
+                        MDRV_LowSpeedUp();
+                        gElv_data.cabin_phase = CABIN_PHASE_MOVING_UP_SLOW;
+                        gElv_data.stop_is_pressed = 1;
+                    }
+                }
                 ++gElv_data.current_floor;
                 break;
             }
         case CABIN_PHASE_MOVING_DOWN_FAST://switch to phase Moving Down Slowly or stay with phase Moving Down Fast
             {
-                while (CABIN_SWITCH_FLOOR_HIGH != INDRV_CabinSwitches());
-                if(1 == gElv_data.current_floor - abs(gElv_data.req_floor))
+                while (CABIN_SWITCH_FLOOR_HIGH != INDRV_CabinSwitches())
+                {
+                     if(KEY_STOP_CABIN == INDRV_Keys())
+                    {
+                        gElv_data.stop_is_pressed = 1;
+                    }
+                }
+
+                if(1 == gElv_data.current_floor - abs(gElv_data.req_floor) || gElv_data.stop_is_pressed)
                 {
                     MDRV_LowSpeedDown();
                     gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;
                 } 
 
-                while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches());
+                while (CABIN_SWITCH_FLOOR != INDRV_CabinSwitches())
+                {
+                    if(KEY_STOP_CABIN == INDRV_Keys())
+                    {
+                        MDRV_LowSpeedDown();
+                        gElv_data.cabin_phase = CABIN_PHASE_MOVING_DOWN_SLOW;
+                        gElv_data.stop_is_pressed = 1;
+                    }
+                }
                 --gElv_data.current_floor;
                 break;
             }         

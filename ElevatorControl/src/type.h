@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 typedef enum {
-  CABIN_SWITCH_UNKNOWN,
+  CABIN_SWITCH_NOSIGNAL,
   CABIN_SWITCH_MIN,
   CABIN_SWITCH_FLOOR_HIGH,
   CABIN_SWITCH_FLOOR,
@@ -23,7 +23,7 @@ typedef enum
     KEY_FLOOR_3_OUT = -3,
     KEY_FLOOR_2_OUT,
     KEY_FLOOR_1_OUT,
-    KEY_FLOOR_CABIN_NOT_PRESED,
+    KEY_NOT_PRESED,
     KEY_FLOOR_1_CABIN,
     KEY_FLOOR_2_CABIN,
     KEY_FLOOR_3_CABIN,
@@ -51,6 +51,7 @@ typedef struct
 {
     int req_floor; 
     uint8_t current_floor;
+    uint8_t stop_is_pressed; 
     ELFSM_CABIN_PHASE_E cabin_phase;
     ELFSM_DOOR_PHASE_E door_phase;
 } ELFSM_DATA_S;
